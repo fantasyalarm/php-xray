@@ -96,6 +96,17 @@ class Segment implements JsonSerializable
     }
 
     /**
+     * @return static
+     */
+    public function setTime(float $time)
+    {
+        $this->endTime = microtime(true);
+        $this->startTime = microtime(true)-$time);
+        
+        return $this;
+    }
+        
+    /**
      * @param string $name
      * @return static
      */
