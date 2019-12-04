@@ -101,7 +101,7 @@ class Segment implements JsonSerializable
     public function setTime(float $time)
     {
         $this->endTime = microtime(true);
-        $this->startTime = microtime(true)-$time);
+        $this->startTime = microtime(true)-$time;
         
         return $this;
     }
