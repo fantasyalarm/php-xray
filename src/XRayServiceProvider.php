@@ -45,7 +45,7 @@ class XRayServiceProvider extends ServiceProvider
             $client =new Client(['handler' => $handlerStack,'verify'=>false,'on_stats'=>function (\GuzzleHttp\TransferStats $stats) {
                 print_r($stats->getTransferTime());
                 Container::getInstance()->make('xray.trace')->getCurrentSegment()->addSubSegment((new HttpSegment())
-                    ->setName('AWS CLI Call')
+                    ->setName('AWS XRay CLI Call')
                     ->setUrl($stats->getEffectiveUri())
                     ->setMethod($stats->getRequest()->getMethod())
                     ->setResponseCode($stats->getResponse()->getStatusCode())
