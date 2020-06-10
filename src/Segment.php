@@ -303,7 +303,8 @@ class Segment implements JsonSerializable
      */
     public function jsonSerialize()
     {
-        return array_filter([
+        $array =  array_filter([
+            'origin' => 'AWS::EC2::Instance',
             'id' => $this->id,
             'parent_id' => $this->parentId,
             'trace_id' => $this->traceId,
@@ -315,7 +316,13 @@ class Segment implements JsonSerializable
             'fault' => $this->fault,
             'error' => $this->error,
             'annotations' => empty($this->annotations) ? null : $this->annotations,
-            'metadata' => empty($this->metadata) ? null : $this->metadata
+            'metadata' => empty($this->metadata) ? null : $this->metadata,
         ]);
+        if(function_exists('config')){
+           $array['ec2'] = array(
+                'availability_zone'=> config('aws.availability_zone','us-east-1d'),
+                'instance_id'=>config('aws.instance_id','')
+            );
+        }
     }
 }
