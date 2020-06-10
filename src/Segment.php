@@ -324,5 +324,6 @@ class Segment implements JsonSerializable
                 'instance_id'=>config('aws.instance_id','')
             );
         }
+        return $array;
     }
 }
