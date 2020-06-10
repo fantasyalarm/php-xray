@@ -29,9 +29,9 @@ class XRayServiceProvider extends ServiceProvider
         $this->app->singleton('xray.service', function ($app) {
                 $fallbackSamplingRule = (new SamplingRuleBuilder())
                     ->setFixedRate($app['config']->get('app.trace.samples'))
-                    ->setHttpMethod($_SERVER['REQUEST_METHOD'] ?? 'cmd')
-                    ->setHost($app['config']->get('app.host'))
-                    ->setServiceName($app['config']->get('app.name'))
+                    ->setHttpMethod('*')
+                    ->setHost('*')
+                    ->setServiceName('*')
                     ->setServiceType('*')
                     ->setUrlPath('')
                     ->build();
