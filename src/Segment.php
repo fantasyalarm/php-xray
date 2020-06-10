@@ -96,17 +96,6 @@ class Segment implements JsonSerializable
     }
 
     /**
-     * @return static
-     */
-    public function setTime(float $time)
-    {
-        $this->endTime = microtime(true);
-        $this->startTime = microtime(true)-$time;
-        
-        return $this;
-    }
-        
-    /**
      * @param string $name
      * @return static
      */
@@ -115,6 +104,22 @@ class Segment implements JsonSerializable
         $this->name = $name;
 
         return $this;
+    }
+    
+    /**
+     * @return string|null
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+    
+    /**
+     * @return string|null
+     */
+    public function getType()
+    {
+        return $this->independent ? 'subsegment' : null;
     }
 
     /**
@@ -294,7 +299,7 @@ class Segment implements JsonSerializable
             'start_time' => $this->startTime,
             'end_time' => $this->endTime,
             'subsegments' => empty($this->subsegments) ? null : $this->subsegments,
-            'type' => $this->independent ? 'subsegment' : null,
+            'type' => $this->getType(),
             'fault' => $this->fault,
             'error' => $this->error,
             'annotations' => empty($this->annotations) ? null : $this->annotations,
