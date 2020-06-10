@@ -2,9 +2,14 @@
 
 
 namespace Pkerrigan\Xray;
+use Aws\Handler\GuzzleV6\GuzzleHandler;
+use GuzzleHttp\Client;
+use GuzzleHttp\Middleware;
 use Illuminate\Support\ServiceProvider;
 use Pkerrigan\Xray\SamplingRule\CachedSamplingRuleRepository;
 use Pkerrigan\Xray\SamplingRule\SamplingRuleBuilder;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 
 class XRayServiceProvider extends ServiceProvider
@@ -35,9 +40,29 @@ class XRayServiceProvider extends ServiceProvider
                     ->setServiceType('*')
                     ->setUrlPath('')
                     ->build();
-                $xrayClient = new \Aws\XRay\XRayClient([
+                $handlerStack = \GuzzleHttp\HandlerStack::create();
+                $handlerStack->push(Middleware::mapRequest(function (RequestInterface $request) {
+                    app('trace')->addSubSegment( (new HttpSegment())
+                        ->setName('AWS CLI Call')
+                        ->setUrl($request->getRequestTarget())
+                        ->setMethod($request->getMethod())
+                        ->begin());
+                    return $request;
+                }));
+                $handlerStack->push(Middleware::mapResponse(function (ResponseInterface $response) {
+                    app('trace')
+                        ->setTraced(true)
+                        ->setResponseCode($response->getStatusCode())
+                        ->end();
+                    return $response;
+                }));
+                $client =new Client(['handler' => $handlerStack]);
+                $handler = new GuzzleHandler($client);
+
+            $xrayClient = new \Aws\XRay\XRayClient([
                     'version' => 'latest',
-                    'region' => 'us-east-1'
+                    'region' => 'us-east-1',
+                    'http_handler' => $handler
                 ]);
                 $samplingRuleRepository = new \Pkerrigan\Xray\SamplingRule\AwsSdkSamplingRuleRepository($xrayClient, $fallbackSamplingRule,!$app['config']->get('app.trace.enabled'));
                 //TODO: CACHING
