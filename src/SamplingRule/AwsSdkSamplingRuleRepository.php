@@ -19,36 +19,47 @@ class AwsSdkSamplingRuleRepository implements SamplingRuleRepository
     /** @var array|null */
     private $fallbackSamplingRule;
 
+    /** @var bool */
+    private $skipRequest = false;
+
     public function __construct(
         XRayClient $xrayClient,
-        array $fallbackSamplingRule = null
+        array $fallbackSamplingRule = null,
+        bool $skipRequest = false
     )
     {
         $this->xrayClient = $xrayClient;
         $this->fallbackSamplingRule = $fallbackSamplingRule;
+        $this->skipRequest = $skipRequest;
     }
 
     public function getAll(): array
     {
-        try {
-            $samplingRules = [];
-            
-            // See: https://docs.aws.amazon.com/aws-sdk-php/v3/api/api-xray-2016-04-12.html#getsamplingrules
-            $samplingRulesResults = $this->xrayClient->getPaginator('GetSamplingRules');
-            
-            foreach ($samplingRulesResults as $samplingRuleResult) {
-                foreach ($samplingRuleResult['SamplingRuleRecords'] as $samplingRule) {
-                    $samplingRules[] = $samplingRule['SamplingRule'];
+        if(!$this->skipRequest) {
+            try {
+                $samplingRules = [];
+
+                // See: https://docs.aws.amazon.com/aws-sdk-php/v3/api/api-xray-2016-04-12.html#getsamplingrules
+                $samplingRulesResults = $this->xrayClient->getPaginator('GetSamplingRules');
+
+                foreach ($samplingRulesResults as $samplingRuleResult) {
+                    foreach ($samplingRuleResult['SamplingRuleRecords'] as $samplingRule) {
+                        $samplingRules[] = $samplingRule['SamplingRule'];
+                    }
                 }
+
+                return $samplingRules;
+            } catch (AwsException $ex) {
+                if (!empty($this->fallbackSamplingRule)) {
+                    return [$this->fallbackSamplingRule];
+                }
+
+                throw $ex;
             }
-            
-            return $samplingRules;
-        } catch (AwsException $ex) {
-            if (! empty($this->fallbackSamplingRule)) {
-                return [ $this->fallbackSamplingRule ];
+        }else{
+            if (!empty($this->fallbackSamplingRule)) {
+                return [$this->fallbackSamplingRule];
             }
-            
-            throw $ex;
         }
     }
 }

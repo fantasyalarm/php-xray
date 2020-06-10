@@ -12,10 +12,6 @@ class Trace extends Segment
     use HttpTrait;
 
     /**
-     * @var static
-     */
-    private static $instance;
-    /**
      * @var string
      */
     private $serviceVersion;
@@ -23,18 +19,6 @@ class Trace extends Segment
      * @var string
      */
     private $user;
-
-    /**
-     * @return static
-     */
-    public static function getInstance()
-    {
-        if (is_null(self::$instance)) {
-            self::$instance = new static();
-        }
-
-        return self::$instance;
-    }
 
     /**
      * @param string $traceHeader
