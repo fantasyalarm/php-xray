@@ -42,21 +42,16 @@ class XRayServiceProvider extends ServiceProvider
                     ->setUrlPath('*')
                     ->build();
             $handlerStack = \GuzzleHttp\HandlerStack::create();
-            $handlerStack->push(Middleware::mapRequest(function (RequestInterface $request) {
-                Container::getInstance()->make('xray.trace')->addSubSegment( (new HttpSegment())
+            $client =new Client(['handler' => $handlerStack,'verify'=>false,'on_stats'=>function (\GuzzleHttp\TransferStats $stats) {
+                print_r($stats->getTransferTime());
+                Container::getInstance()->make('xray.trace')->getCurrentSegment()->addSubSegment((new HttpSegment())
                     ->setName('AWS CLI Call')
-                    ->setUrl($request->getRequestTarget())
-                    ->setMethod($request->getMethod())
-                    ->begin());
-                return $request;
-            }));
-            $handlerStack->push(Middleware::mapResponse(function (ResponseInterface $response) {
-                Container::getInstance()->make('xray.trace')
-                    ->setResponseCode($response->getStatusCode())
-                    ->end();
-                return $response;
-            }));
-            $client =new Client(['handler' => $handlerStack,'verify'=>false]);
+                    ->setUrl($stats->getEffectiveUri())
+                    ->setMethod($stats->getRequest()->getMethod())
+                    ->setResponseCode($stats->getResponse()->getStatusCode())
+                    ->setTime($stats->getTransferTime())
+                );
+            }]);
             $handler = new GuzzleHandler($client);
 
             $xrayClient = new \Aws\XRay\XRayClient([
@@ -64,7 +59,6 @@ class XRayServiceProvider extends ServiceProvider
                     'region' => 'us-east-1',
                     'http_handler' => $handler
                 ]);
-
                 $samplingRuleRepository = new \Pkerrigan\Xray\SamplingRule\AwsSdkSamplingRuleRepository($xrayClient, $fallbackSamplingRule,!$app['config']->get('app.trace.enabled'));
                 //TODO: CACHING
                 //$cachedSamplingRuleRepository = new CachedSamplingRuleRepository($samplingRuleRepository, $psrCacheImplementation);

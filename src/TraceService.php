@@ -43,6 +43,9 @@ class TraceService
         $isSampled = $samplingRule !== null && Utils::randomPossibility($samplingRule['FixedRate'] * 100);
         $trace->setSampled($isSampled);
 
+        if($trace->isOpen()){
+            $trace->end();
+        }
         if ($isSampled) {
             $this->segmentSubmitter->submitSegment($trace);
         }
