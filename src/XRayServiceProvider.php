@@ -28,10 +28,10 @@ class XRayServiceProvider extends ServiceProvider
     {
         $this->app->singleton('xray.service', function ($app) {
                 $fallbackSamplingRule = (new SamplingRuleBuilder())
-                    ->setFixedRate($this['config']->get('app.trace.samples'))
+                    ->setFixedRate($app['config']->get('app.trace.samples'))
                     ->setHttpMethod($_SERVER['REQUEST_METHOD'] ?? 'cmd')
-                    ->setHost($this['config']->get('app.host'))
-                    ->setServiceName($this['config']->get('app.name'))
+                    ->setHost($app['config']->get('app.host'))
+                    ->setServiceName($app['config']->get('app.name'))
                     ->setServiceType('*')
                     ->setUrlPath('')
                     ->build();
@@ -49,10 +49,10 @@ class XRayServiceProvider extends ServiceProvider
             if ($app['config']->get('app.trace.enabled')) {
                 $trace
                     ->setTraceHeader($_SERVER['HTTP_X_AMZN_TRACE_ID'] ?? null)
-                    ->setName($this['config']->get('app.name'))
+                    ->setName($app['config']->get('app.name'))
                     ->setUrl($_SERVER['REQUEST_URI'] ?? $_SERVER['SCRIPT_FILENAME'])
                     ->setMethod($_SERVER['REQUEST_METHOD'] ?? 'cmd')
-                    ->begin($this['config']->get('app.trace.samples'));
+                    ->begin($app['config']->get('app.trace.samples'));
             }
             return $trace;
         });
