@@ -59,8 +59,9 @@ class XRayServiceProvider extends ServiceProvider
                     'http_handler' => $handler
                 ]);
                 $samplingRuleRepository = new \Pkerrigan\Xray\SamplingRule\AwsSdkSamplingRuleRepository($xrayClient, $fallbackSamplingRule,!$app['config']->get('app.trace.enabled'));
-                //TODO: CACHING
-                //$cachedSamplingRuleRepository = new CachedSamplingRuleRepository($samplingRuleRepository, $psrCacheImplementation);
+                if(function_exists('app')){
+                    $samplingRuleRepository = new CachedSamplingRuleRepository($samplingRuleRepository, app('cache.store'));
+                }
                 return new \Pkerrigan\Xray\TraceService($samplingRuleRepository, new \Pkerrigan\Xray\Submission\DaemonSegmentSubmitter());
         });
         $this->app->singleton('xray.trace', function ($app) {
