@@ -118,7 +118,7 @@ class SqlSegment extends RemoteSegment
     /**
      * @inheritdoc
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         $data = parent::jsonSerialize();
 
