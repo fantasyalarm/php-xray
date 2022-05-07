@@ -301,7 +301,7 @@ class Segment implements JsonSerializable
     /**
      * @inheritdoc
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         $array =  array_filter([
             'origin' => 'AWS::EC2::Instance',
