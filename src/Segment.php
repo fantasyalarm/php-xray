@@ -304,21 +304,6 @@ class Segment implements JsonSerializable
     #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
-        /*$array =  array_filter([
-            'origin' => 'AWS::EC2::Instance',
-            'id' => $this->id,
-            'parent_id' => $this->parentId,
-            'trace_id' => $this->traceId,
-            'name' => $this->name ?? null,
-            'start_time' => $this->startTime,
-            'end_time' => $this->endTime,
-            'subsegments' => empty($this->subsegments) ? null : $this->subsegments,
-            'type' => $this->getType(),
-            'fault' => $this->fault,
-            'error' => $this->error,
-            'annotations' => empty($this->annotations) ? null : $this->annotations,
-            'metadata' => empty($this->metadata) ? null : $this->metadata,
-        ]);*/
         return array_filter([
             'id' => $this->id,
             'parent_id' => $this->parentId,
@@ -334,12 +319,6 @@ class Segment implements JsonSerializable
             'metadata' => empty($this->metadata) ? null : $this->metadata,
             'aws' => $this->serialiseAwsData(),
         ]);
-        if(function_exists('config')){
-           $array['ec2'] = array(
-                'availability_zone'=> config('aws.availability_zone','us-east-1d'),
-                'instance_id'=>config('aws.instance_id','')
-            );
-        }
         return $array;
     }
 }
