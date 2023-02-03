@@ -14,7 +14,8 @@ class HttpSegment extends RemoteSegment
     /**
      * @inheritdoc
      */
-    public function jsonSerialize(): array
+    #[\ReturnTypeWillChange]
+    public function jsonSerialize()
     {
         $data = parent::jsonSerialize();
 
