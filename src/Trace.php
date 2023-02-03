@@ -19,7 +19,10 @@ class Trace extends Segment
      * @var string
      */
     private $user;
-
+    /**
+     * @var static
+     */
+    private static $instance;
     /**
      * @param string $traceHeader
      * @return static
@@ -46,7 +49,19 @@ class Trace extends Segment
 
         return $this;
     }
+    
+    /**
+     * @return static
+     */
+    public static function getInstance()
+    {
+        if (is_null(self::$instance)) {
+            self::$instance = new static();
+        }
 
+        return self::$instance;
+    }
+    
     /**
      * @param string $serviceVersion
      * @return static
@@ -103,7 +118,7 @@ class Trace extends Segment
         }
 
         if (!$this->isSampled()) {
-            $this->sampled = Utils::randomPossibility($samplePercentage);
+            $this->sampled = (random_int(0, 99) < $samplePercentage);
         }
 
         return $this;
@@ -112,7 +127,8 @@ class Trace extends Segment
     /**
      * @inheritdoc
      */
-    public function jsonSerialize(): array
+    #[\ReturnTypeWillChange]
+    public function jsonSerialize()
     {
         $data = parent::jsonSerialize();
 
