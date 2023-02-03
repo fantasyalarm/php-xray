@@ -1,5 +1,5 @@
 {
-    "name": "pkerrigan/xray",
+    "name": "fantasyalarm/xray",
     "description": "A basic PHP instrumentation library for AWS X-Ray",
     "keywords": ["AWS", "X-Ray", "AWS X-Ray", "APM", "Tracing"],
     "type": "library",
