@@ -9,6 +9,8 @@ use Pkerrigan\Xray\Submission\SegmentSubmitter;
  *
  * @author Patrick Kerrigan (patrickkerrigan.uk)
  * @since 13/05/2018
+ * @SuppressWarnings(PHPMD.TooManyMethods)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class Segment implements JsonSerializable
 {
@@ -58,6 +60,10 @@ class Segment implements JsonSerializable
      */
     protected $independent = false;
     /**
+     * @var int|null
+     */
+    protected $awsAccountId = null;
+    /**
      * @var string[]
      */
     private $annotations;
@@ -96,18 +102,6 @@ class Segment implements JsonSerializable
     }
 
     /**
-     * @param float $time
-     * @return static
-     */
-    public function setTime(float $time)
-    {
-        $this->endTime = microtime(true);
-        $this->startTime = microtime(true)-$time;
-
-        return $this;
-    }
-
-    /**
      * @param string $name
      * @return static
      */
@@ -116,22 +110,6 @@ class Segment implements JsonSerializable
         $this->name = $name;
 
         return $this;
-    }
-    
-    /**
-     * @return string|null
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-    
-    /**
-     * @return string|null
-     */
-    public function getType()
-    {
-        return $this->independent ? 'subsegment' : null;
     }
 
     /**
@@ -261,6 +239,17 @@ class Segment implements JsonSerializable
     }
 
     /**
+     * @param int $awsAccountId
+     * @return $this
+     */
+    public function setAwsAccountId(int $awsAccountId)
+    {
+        $this->awsAccountId = $awsAccountId;
+
+        return $this;
+    }
+
+    /**
      * @param string $key
      * @param string $value
      * @return static
@@ -319,6 +308,12 @@ class Segment implements JsonSerializable
             'metadata' => empty($this->metadata) ? null : $this->metadata,
             'aws' => $this->serialiseAwsData(),
         ]);
-        return $array;
+    }
+
+    protected function serialiseAwsData(): array
+    {
+        return array_filter([
+            'account_id' => $this->awsAccountId,
+        ]);
     }
 }
