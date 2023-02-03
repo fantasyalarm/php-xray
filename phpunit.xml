@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit backupGlobals="false"
          bootstrap="vendor/autoload.php"
-         verbose="true">
+         verbose="true"
+         convertDeprecationsToExceptions="false">
     <testsuite name="php-xray">
         <directory suffix="Test.php">tests</directory>
     </testsuite>
@@ -10,4 +11,9 @@
             <directory suffix=".php">src</directory>
         </whitelist>
     </filter>
+    <php>
+        <ini name="error_reporting" value="E_ALL" />
+        <ini name="display_errors" value="On" />
+        <ini name="display_startup_errors" value="On" />
+    </php>
 </phpunit>

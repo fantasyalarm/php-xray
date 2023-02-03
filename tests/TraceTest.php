@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
  */
 class TraceTest extends TestCase
 {
-    public function testGetInstanceReturnsSingleton()
+    public function testGetInstanceReturnsSingleton(): void
     {
         $instance1 = Trace::getInstance();
         $instance2 = Trace::getInstance();
@@ -19,7 +19,7 @@ class TraceTest extends TestCase
         $this->assertEquals(spl_object_hash($instance1), spl_object_hash($instance2));
     }
 
-    public function testSerialisesCorrectly()
+    public function testSerialisesCorrectly(): void
     {
         $trace = new Trace();
         $trace->setName('Test trace')
@@ -30,6 +30,7 @@ class TraceTest extends TestCase
             ->setClientIpAddress('127.0.0.1')
             ->setUserAgent('TestAgent')
             ->setResponseCode(200)
+            ->setAwsAccountId(123)
             ->begin()
             ->end();
 
@@ -44,28 +45,28 @@ class TraceTest extends TestCase
         $this->assertEquals('TestAgent', $serialised['http']['request']['user_agent']);
         $this->assertEquals(200, $serialised['http']['response']['status']);
         $this->assertEquals($trace->getTraceId(), $serialised['trace_id']);
+        $this->assertEquals(123, $serialised['aws']['account_id']);
     }
 
-    public function testGeneratesCorrectFormatTraceId()
+    public function testGeneratesCorrectFormatTraceId(): void
     {
         $trace = new Trace();
         $trace->begin();
 
-        $this->assertRegExp('@^1\-[a-f0-9]{8}\-[a-f0-9]{24}$@', $trace->getTraceId());
+        self::assertMatchesRegularExpression('@^1\-[a-f0-9]{8}\-[a-f0-9]{24}$@', $trace->getTraceId());
     }
 
-    /**
-     * @expectedException \TypeError
-     */
-    public function testGivenNullHeaderDoesNotSetId()
+    public function testGivenNullHeaderDoesNotSetId(): void
     {
+        $this->expectException(\TypeError::class);
+
         $trace = new Trace();
         $trace->setTraceHeader(null);
 
         $trace->getTraceId();
     }
 
-    public function testGivenIdHeaderSetsId()
+    public function testGivenIdHeaderSetsId(): void
     {
         $traceId = '1-ab3169f3-1b7f38ac63d9037ef1843ca4';
 
@@ -77,7 +78,7 @@ class TraceTest extends TestCase
         $this->assertArrayNotHasKey('parent_id', $trace->jsonSerialize());
     }
 
-    public function testGivenSampledHeaderSetsSampled()
+    public function testGivenSampledHeaderSetsSampled(): void
     {
         $traceId = '1-ab3169f3-1b7f38ac63d9037ef1843ca4';
 
@@ -89,7 +90,7 @@ class TraceTest extends TestCase
         $this->assertArrayNotHasKey('parent_id', $trace->jsonSerialize());
     }
 
-    public function testGivenParentHeaderSetsParentId()
+    public function testGivenParentHeaderSetsParentId(): void
     {
         $traceId = '1-ab3169f3-1b7f38ac63d9037ef1843ca4';
         $parentId = '1234567890';
@@ -100,5 +101,14 @@ class TraceTest extends TestCase
         $this->assertEquals($traceId, $trace->getTraceId());
         $this->assertTrue($trace->isSampled());
         $this->assertEquals($parentId, $trace->jsonSerialize()['parent_id']);
+    }
+
+    public static function assertMatchesRegularExpression(string $pattern, string $string, string $message = ''): void
+    {
+        if (version_compare(\PHPUnit\Runner\Version::id(), '9.1.0') === -1) {
+            self::assertRegExp($pattern, $string, $message);
+        } else {
+            parent::assertMatchesRegularExpression($pattern, $string, $message);
+        }
     }
 }

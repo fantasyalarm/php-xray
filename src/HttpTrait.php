@@ -29,6 +29,10 @@ trait HttpTrait
      * @var int
      */
     protected $responseCode;
+    /**
+     * @var bool
+     */
+    protected $traced = false;
 
     /**
      * @param string $url
@@ -89,7 +93,8 @@ trait HttpTrait
                 'url' => $this->url,
                 'method' => $this->method,
                 'client_ip' => $this->clientIpAddress,
-                'user_agent' => $this->userAgent
+                'user_agent' => $this->userAgent,
+                'traced' => $this->traced
             ]),
             'response' => array_filter([
                 'status' => $this->responseCode
