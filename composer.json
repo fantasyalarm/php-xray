@@ -27,8 +27,5 @@
 
     "require-dev": {
         "phpunit/phpunit": "^9|^8|^7"
-    },
-    "suggest": {
-        "psr/simple-cache": "Enable caching the retrieval of Xray sampling rules"
     }
 }
