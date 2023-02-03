@@ -101,6 +101,19 @@ class Segment implements JsonSerializable
         return $this;
     }
 
+
+    /**
+     * @param float $time
+     * @return static
+     */
+    public function setTime(float $time)
+    {
+        $this->endTime = microtime(true);
+        $this->startTime = microtime(true)-$time;
+
+        return $this;
+    }
+
     /**
      * @param string $name
      * @return static
@@ -110,6 +123,22 @@ class Segment implements JsonSerializable
         $this->name = $name;
 
         return $this;
+    }
+    
+    /**
+     * @return string|null
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+    
+    /**
+     * @return string|null
+     */
+    public function getType()
+    {
+        return $this->independent ? 'subsegment' : null;
     }
 
     /**
