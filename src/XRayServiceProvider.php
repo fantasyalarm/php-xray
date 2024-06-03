@@ -55,7 +55,7 @@ class XRayServiceProvider extends ServiceProvider
 
             $xrayClient = new \Aws\XRay\XRayClient([
                     'version' => 'latest',
-                    'region' => 'us-east-1',
+                    'region' => config('aws.region','us-east-1'),
                     'http_handler' => $handler
                 ]);
                 $samplingRuleRepository = new \Pkerrigan\Xray\SamplingRule\AwsSdkSamplingRuleRepository($xrayClient, $fallbackSamplingRule,!$app['config']->get('app.trace.enabled'));
